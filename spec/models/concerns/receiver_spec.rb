@@ -33,5 +33,19 @@ shared_examples_for "Wupee::Receiver" do
       expect { create model.name.underscore }.to change { Wupee::NotificationTypeConfiguration.count }.by(1)
       expect(Wupee::NotificationTypeConfiguration.last.receiver).to eq model.last
     end
+
+    it "creates configuration with default config's value" do
+      default_config = {
+        'User' => {
+          'signed_in' => 'notification'
+        }
+      }
+      Wupee::NotificationTypeConfiguration.set_default_config default_config
+      create :notification_type, name: 'signed_in'
+      expect { create model.name.underscore }.to change { Wupee::NotificationTypeConfiguration.count }.by(1)
+      created_configuration = Wupee::NotificationTypeConfiguration.last
+      expect(created_configuration.value).to eq('notification')
+    end
   end
+
 end

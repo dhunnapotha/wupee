@@ -31,9 +31,26 @@ RSpec.describe Wupee::NotificationType, type: :model do
   end
 
   context "class methods" do
-    it "has a method create_configurations_for which creates NotificationTypeConfiguration objects" do
-      expect { create :notification_type, name: "random_notif_type_2" }.to change { Wupee::NotificationTypeConfiguration.count }.by(User.count)
+    context 'has a method create_configurations_for' do
+
+      it "which creates NotificationTypeConfiguration objects" do
+        expect { create :notification_type, name: "random_notif_type_2" }.to change { Wupee::NotificationTypeConfiguration.count }.by(User.count)
+      end
+
+      it 'creates configuration objects with default configs value' do
+        expect(User.count).to eq(1)
+        default_config = {
+          'User' => {
+            'signed_in' => 'notification'
+          }
+        }
+        Wupee::NotificationTypeConfiguration.set_default_config default_config
+        create :notification_type, name: "signed_in"
+        expect(Wupee::NotificationTypeConfiguration.last.value).to eq('notification')
+      end
     end
+
+
   end
 
   context "associations" do
