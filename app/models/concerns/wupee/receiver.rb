@@ -7,8 +7,9 @@ module Wupee
       has_many :notification_type_configurations, as: :receiver, dependent: :destroy, class_name: "Wupee::NotificationTypeConfiguration"
 
       after_create do
-        Wupee::NotificationType.pluck(:id).each do |notification_type_id|
-          Wupee::NotificationTypeConfiguration.create!(notification_type_id: notification_type_id, receiver: self)
+        Wupee::NotificationType.select([:id, :name]).each do |notification|
+          value = Wupee::NotificationTypeConfiguration.get_config_for(self.class.to_s, notification.name)
+          Wupee::NotificationTypeConfiguration.create!(notification_type_id: notification.id, receiver: self, value: value)
         end
       end
     end

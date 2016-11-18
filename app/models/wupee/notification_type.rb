@@ -9,8 +9,9 @@ class Wupee::NotificationType < ActiveRecord::Base
     class_eval do
       receivers.each do |receiver|
         after_create do
-          receiver.to_s.constantize.pluck(:id).each do |receiver_id|
-            Wupee::NotificationTypeConfiguration.create!(notification_type: self, receiver_type: receiver, receiver_id: receiver_id)
+          value = Wupee::NotificationTypeConfiguration.get_config_for(receiver, self.name)
+          receiver.to_s.constantize.select(:id).find_each(batch_size: 5000) do |obj|
+            Wupee::NotificationTypeConfiguration.create!(notification_type: self, receiver_type: receiver, receiver_id: obj.id, value: value)
           end
         end
       end
